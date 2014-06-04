@@ -9,6 +9,8 @@
 
 	var content;
 	var contents = [];
+	var animations = {};
+	var selectors = [];
 
 	//Finds the declaration of an animation block.
 	var rxAnimation = /@-skrollr-keyframes\s+([\w-]+)/g;
@@ -48,6 +50,7 @@
 
 	//"main"
 	var kickstart = function(stylesheets) {
+		// console.log(stylesheets);
 		//Iterate over all stylesheets, embedded and remote.
 		for(var stylesheetIndex = 0; stylesheetIndex < stylesheets.length; stylesheetIndex++) {
 			var sheet = stylesheets[stylesheetIndex];
@@ -82,9 +85,6 @@
 		//This is needed to ensure correct order of stylesheets and inline styles.
 		contents.reverse();
 
-		var animations = {};
-		var selectors = [];
-
 		//Now parse all stylesheets.
 		for(var contentIndex = 0; contentIndex < contents.length; contentIndex++) {
 			content = contents[contentIndex];
@@ -108,6 +108,7 @@
 		var curAnimation;
 
 		while((animation = rxAnimation.exec(input)) !== null) {
+
 			//Grab the keyframes inside this animation.
 			rxKeyframes.lastIndex = rxAnimation.lastIndex;
 			rawKeyframes = rxKeyframes.exec(input);
@@ -153,7 +154,8 @@
 	};
 
 	//Applies the keyframes (as data-attributes) to the elements.
-	var applyKeyframes = function(animations, selectors) {
+	var applyKeyframes = function(_animations, _selectors) {
+
 		var elements;
 		var keyframes;
 		var keyframeName;
@@ -161,6 +163,9 @@
 		var attributeName;
 		var attributeValue;
 		var curElement;
+
+		animations = _animations || animations;
+		selectors = _selectors || selectors;
 
 		for(var selectorIndex = 0; selectorIndex < selectors.length; selectorIndex++) {
 			elements = document.querySelectorAll(selectors[selectorIndex][0]);
@@ -191,4 +196,9 @@
 	};
 
 	kickstart(document.querySelectorAll('link, style'));
+
+	window.skrollrStylesheets = {
+		applyKeyframes: applyKeyframes
+	};
+
 }(window, document));
